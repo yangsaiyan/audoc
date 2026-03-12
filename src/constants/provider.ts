@@ -1,0 +1,1 @@
+export const AI_PROVIDERS = ["Google Gemini", "ChatGPT"];

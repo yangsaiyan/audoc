@@ -1,0 +1,153 @@
+{
+  "name": "audoc",
+  "displayName": "Audoc",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.109.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:audoc.generateDocumentation",
+    "onView:audocView"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "audoc",
+          "title": "Audoc",
+          "icon": "media/audoc.svg"
+        }
+      ]
+    },
+    "views": {
+      "audoc": [
+        {
+          "id": "audocView",
+          "name": "Audoc",
+          "type": "webview"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "audoc.generateDocumentation",
+        "title": "Generate Documentation"
+      },
+      {
+        "command": "audoc.setApiKey",
+        "title": "Set API Key"
+      },
+      {
+        "command": "audoc.clearApiKey",
+        "title": "Clear API Key"
+      },
+      {
+        "command": "audoc.resetApiKey",
+        "title": "Reset API Key"
+      },
+      {
+        "command": "audoc.selectModel",
+        "title": "Select Model for Current AI Provider"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "audoc.generateDocumentation",
+          "when": "editorTextFocus"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Audoc AI Settings",
+      "properties": {
+        "audoc.documentationLanguage": {
+          "order": 1,
+          "type": "string",
+          "enum": [
+            "English",
+            "简体中文",
+            "繁體中文",
+            "Español",
+            "Français",
+            "Deutsch",
+            "日本語",
+            "한국어",
+            "Português",
+            "Русский",
+            "Italiano",
+            "Nederlands"
+          ],
+          "default": "",
+          "description": "Select the language for the documentation."
+        },
+        "audoc.aiProvider": {
+          "order": 2,
+          "type": "string",
+          "enum": [
+            "Google Gemini",
+            "ChatGPT"
+          ],
+          "default": "Google Gemini",
+          "description": "Select the AI provider to use for generating documentation."
+        },
+        "audoc.geminiModel": {
+          "order": 3,
+          "type": "string",
+          "enum": [
+            "gemini-3.1-pro-preview",
+            "gemini-3.1-flash-lite-preview",
+            "gemini-3-pro-preview",
+            "gemini-3-flash-preview",
+            "gemini-2.5-pro",
+            "gemini-2.5-flash",
+            "gemini-2.5-flash-lite"
+          ],
+          "default": "gemini-3-flash-preview",
+          "description": "Model to use when AI Provider is Google Gemini."
+        },
+        "audoc.chatgptModel": {
+          "order": 4,
+          "type": "string",
+          "enum": [
+            "gpt-5.4",
+            "gpt-5-2025-08-07",
+            "gpt-5-mini-2025-08-07",
+            "gpt-5-nano-2025-08-07",
+            "gpt-4.1-2025-04-14"
+          ],
+          "default": "gpt-5-nano-2025-08-07",
+          "description": "Model to use when AI Provider is ChatGPT."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "yarn run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "yarn run compile && yarn run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "@types/vscode": "^1.109.0",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
+    "eslint": "^9.39.3",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.56.1"
+  },
+  "dependencies": {
+    "@google/genai": "^1.43.0",
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "openai": "^6.27.0"
+  }
+}
