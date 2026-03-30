@@ -1,0 +1,61 @@
+{
+  "html": {
+    "title": "Audoc",
+    "heading": "Configuración de Audoc",
+    "labelUILanguage": "Idioma de la interfaz",
+    "labelLanguage": "Idioma del documento",
+    "labelProvider": "Proveedor de IA",
+    "labelModel": "Modelo",
+    "labelApiKey": "Clave API (almacenamiento seguro)",
+    "placeholderApiKey": "Introduce la clave API…",
+    "placeholderLanguage": "Selecciona un idioma…",
+    "placeholderProvider": "Selecciona un proveedor…",
+    "placeholderModel": "Selecciona un modelo…",
+    "placeholderUILanguage": "Selecciona el idioma de la interfaz…",
+    "labelSave": "Guardar",
+    "labelClear": "Limpiar",
+    "labelReset": "Restablecer"
+  },
+  "error": {
+    "apiKeyNotSet": "La clave API no está configurada",
+    "noTextSelected": "No se ha seleccionado ningún texto",
+    "noDocumentationGenerated": "No se ha generado documentación",
+    "errorGeneratingDocumentation": "Error al generar la documentación",
+    "selectedAIProviderNotSupported": "El proveedor de IA seleccionado no es compatible",
+    "failedRetrieveApiKey": "Error al obtener la clave API: {0}",
+    "failedSetApiKey": "Error al establecer la clave API: {0}",
+    "failedClearApiKey": "Error al limpiar la clave API: {0}",
+    "failedResetApiKey": "Error al restablecer la clave API: {0}",
+    "selectProviderFirst": "Selecciona primero un proveedor de IA"
+  },
+  "info": {
+    "generatingDocumentation": "Generando documentación…"
+  },
+  "success": {
+    "apiKeyStoredSecurely": "La clave API se ha almacenado de forma segura",
+    "apiKeyClearedSuccessfully": "La clave API se ha eliminado",
+    "apiKeyResetSuccessfully": "La clave API se ha eliminado. Introduce una nueva clave y guárdala.",
+    "apiKeyResetComplete": "La clave API se ha restablecido",
+    "languageSetTo": "El idioma del documento se ha establecido en: {0}",
+    "providerSetTo": "El proveedor de IA se ha establecido en: {0}",
+    "modelSetTo": "El modelo se ha establecido en: {0}",
+    "uiLanguageSetTo": "El idioma de la interfaz se ha establecido en: {0}"
+  },
+  "warning": {
+    "apiKeyCannotBeEmpty": "La clave API no puede estar vacía",
+    "apiKeyRequired": "Se requiere una clave API para generar documentación",
+    "apiKeyNotUpdated": "La clave API no se ha actualizado"
+  },
+  "prompt": {
+    "apiKey": "Introduce la clave API para generar documentación"
+  },
+  "placeholder": {
+    "apiKeySecure": "La clave API se almacenará de forma segura"
+  },
+  "validation": {
+    "apiKeyEmpty": "La clave API no puede estar vacía"
+  },
+  "selectModel": {
+    "placeholder": "Selecciona el modelo de {0}"
+  }
+}

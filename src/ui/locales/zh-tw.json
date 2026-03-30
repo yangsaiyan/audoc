@@ -1,0 +1,61 @@
+{
+  "html": {
+    "title": "Audoc",
+    "heading": "Audoc 設定",
+    "labelUILanguage": "介面語言",
+    "labelLanguage": "文件語言",
+    "labelProvider": "AI 提供者",
+    "labelModel": "模型",
+    "labelApiKey": "API 金鑰（安全儲存）",
+    "placeholderApiKey": "輸入 API 金鑰…",
+    "placeholderLanguage": "選擇語言…",
+    "placeholderProvider": "選擇提供者…",
+    "placeholderModel": "選擇模型…",
+    "placeholderUILanguage": "選擇介面語言…",
+    "labelSave": "儲存",
+    "labelClear": "清除",
+    "labelReset": "重設"
+  },
+  "error": {
+    "apiKeyNotSet": "尚未設定 API 金鑰",
+    "noTextSelected": "未選取文字",
+    "noDocumentationGenerated": "未產生文件",
+    "errorGeneratingDocumentation": "產生文件時發生錯誤",
+    "selectedAIProviderNotSupported": "尚未支援所選的 AI 提供者",
+    "failedRetrieveApiKey": "讀取 API 金鑰失敗：{0}",
+    "failedSetApiKey": "設定 API 金鑰失敗：{0}",
+    "failedClearApiKey": "清除 API 金鑰失敗：{0}",
+    "failedResetApiKey": "重設 API 金鑰失敗：{0}",
+    "selectProviderFirst": "請先選擇 AI 提供者"
+  },
+  "info": {
+    "generatingDocumentation": "正在產生文件…"
+  },
+  "success": {
+    "apiKeyStoredSecurely": "API 金鑰已安全儲存",
+    "apiKeyClearedSuccessfully": "API 金鑰已清除",
+    "apiKeyResetSuccessfully": "API 金鑰已清除。請輸入新金鑰後儲存。",
+    "apiKeyResetComplete": "API 金鑰已重設",
+    "languageSetTo": "文件語言已設為：{0}",
+    "providerSetTo": "AI 提供者已設為：{0}",
+    "modelSetTo": "模型已設為：{0}",
+    "uiLanguageSetTo": "介面語言已設為：{0}"
+  },
+  "warning": {
+    "apiKeyCannotBeEmpty": "API 金鑰不可為空",
+    "apiKeyRequired": "產生文件需要 API 金鑰",
+    "apiKeyNotUpdated": "API 金鑰未更新"
+  },
+  "prompt": {
+    "apiKey": "輸入用於產生文件的 API 金鑰"
+  },
+  "placeholder": {
+    "apiKeySecure": "API 金鑰將安全儲存"
+  },
+  "validation": {
+    "apiKeyEmpty": "API 金鑰不可為空"
+  },
+  "selectModel": {
+    "placeholder": "選擇 {0} 模型"
+  }
+}

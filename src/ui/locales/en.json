@@ -1,0 +1,61 @@
+{
+  "html": {
+    "title": "Audoc",
+    "heading": "Audoc Configuration",
+    "labelUILanguage": "Interface language",
+    "labelLanguage": "Documentation language",
+    "labelProvider": "AI provider",
+    "labelModel": "Model",
+    "labelApiKey": "API key (stored securely)",
+    "placeholderApiKey": "Enter API key...",
+    "placeholderLanguage": "Select language...",
+    "placeholderProvider": "Select provider...",
+    "placeholderModel": "Select model...",
+    "placeholderUILanguage": "Select interface language...",
+    "labelSave": "Save",
+    "labelClear": "Clear",
+    "labelReset": "Reset"
+  },
+  "error": {
+    "apiKeyNotSet": "API key is not set",
+    "noTextSelected": "No text selected",
+    "noDocumentationGenerated": "No documentation generated",
+    "errorGeneratingDocumentation": "Error generating documentation",
+    "selectedAIProviderNotSupported": "Selected AI provider is not supported yet",
+    "failedRetrieveApiKey": "Failed to retrieve API key: {0}",
+    "failedSetApiKey": "Failed to set API key: {0}",
+    "failedClearApiKey": "Failed to clear API key: {0}",
+    "failedResetApiKey": "Failed to reset API key: {0}",
+    "selectProviderFirst": "Please select an AI provider first"
+  },
+  "info": {
+    "generatingDocumentation": "Generating documentation..."
+  },
+  "success": {
+    "apiKeyStoredSecurely": "API key stored securely",
+    "apiKeyClearedSuccessfully": "API key cleared successfully",
+    "apiKeyResetSuccessfully": "API key cleared. Enter a new key to save it.",
+    "apiKeyResetComplete": "API key reset successfully",
+    "languageSetTo": "Documentation language set to: {0}",
+    "providerSetTo": "AI provider set to: {0}",
+    "modelSetTo": "Model set to: {0}",
+    "uiLanguageSetTo": "Interface language set to: {0}"
+  },
+  "warning": {
+    "apiKeyCannotBeEmpty": "API key cannot be empty",
+    "apiKeyRequired": "API key is required for documentation generation",
+    "apiKeyNotUpdated": "API key was not updated"
+  },
+  "prompt": {
+    "apiKey": "Enter your API key for documentation generation"
+  },
+  "placeholder": {
+    "apiKeySecure": "API key will be stored securely"
+  },
+  "validation": {
+    "apiKeyEmpty": "API key cannot be empty"
+  },
+  "selectModel": {
+    "placeholder": "Select a {0} model"
+  }
+}

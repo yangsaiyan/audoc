@@ -1,1 +1,3 @@
-export const AI_PROVIDERS = ["Google Gemini", "ChatGPT"];
+import { AIProvider } from "../model/type.ts/aiProvider";
+
+export const AI_PROVIDERS: AIProvider[] = Object.values(AIProvider);

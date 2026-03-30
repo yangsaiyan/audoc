@@ -1,0 +1,61 @@
+{
+  "html": {
+    "title": "Audoc",
+    "heading": "Audoc 设定",
+    "labelUILanguage": "介面语言",
+    "labelLanguage": "文件语言",
+    "labelProvider": "AI 提供者",
+    "labelModel": "模型",
+    "labelApiKey": "API 金钥（安全储存）",
+    "placeholderApiKey": "输入 API 金钥…",
+    "placeholderLanguage": "选择语言…",
+    "placeholderProvider": "选择提供者…",
+    "placeholderModel": "选择模型…",
+    "placeholderUILanguage": "选择介面语言…",
+    "labelSave": "储存",
+    "labelClear": "清除",
+    "labelReset": "重设"
+  },
+  "error": {
+    "apiKeyNotSet": "尚未设定 API 金钥",
+    "noTextSelected": "未选取文字",
+    "noDocumentationGenerated": "未产生文件",
+    "errorGeneratingDocumentation": "产生文件时发生错误",
+    "selectedAIProviderNotSupported": "尚未支援所选的 AI 提供者",
+    "failedRetrieveApiKey": "读取 API 金钥失败：{0}",
+    "failedSetApiKey": "设定 API 金钥失败：{0}",
+    "failedClearApiKey": "清除 API 金钥失败：{0}",
+    "failedResetApiKey": "重设 API 金钥失败：{0}",
+    "selectProviderFirst": "请先选择 AI 提供者"
+  },
+  "info": {
+    "generatingDocumentation": "正在产生文件…"
+  },
+  "success": {
+    "apiKeyStoredSecurely": "API 金钥已安全储存",
+    "apiKeyClearedSuccessfully": "API 金钥已清除",
+    "apiKeyResetSuccessfully": "API 金钥已清除。请输入新金钥后储存。",
+    "apiKeyResetComplete": "API 金钥已重设",
+    "languageSetTo": "文件语言已设为：{0}",
+    "providerSetTo": "AI 提供者已设为：{0}",
+    "modelSetTo": "模型已设为：{0}",
+    "uiLanguageSetTo": "介面语言已设为：{0}"
+  },
+  "warning": {
+    "apiKeyCannotBeEmpty": "API 金钥不可为空",
+    "apiKeyRequired": "产生文件需要 API 金钥",
+    "apiKeyNotUpdated": "API 金钥未更新"
+  },
+  "prompt": {
+    "apiKey": "输入用于产生文件的 API 金钥"
+  },
+  "placeholder": {
+    "apiKeySecure": "API 金钥将安全储存"
+  },
+  "validation": {
+    "apiKeyEmpty": "API 金钥不可为空"
+  },
+  "selectModel": {
+    "placeholder": "选择 {0} 模型"
+  }
+}

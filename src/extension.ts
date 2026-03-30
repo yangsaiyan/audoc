@@ -6,7 +6,22 @@ import {
   selectModel,
   setApiKey,
 } from "./model";
-import { GEMINI_MODELS, CHATGPT_MODELS } from "./constants/model";
+import {
+  GEMINI_MODELS,
+  CHATGPT_MODELS,
+  DEEPSEEK_MODELS,
+} from "./constants/model";
+import { LANGUAGES } from "./constants/language";
+import { AI_PROVIDERS } from "./constants/provider";
+import { Language } from "./model/type.ts/languages";
+import { AIProvider } from "./model/type.ts/aiProvider";
+import {
+  ChatGPTModel,
+  DeepSeekModel,
+  GeminiModel,
+} from "./model/type.ts/models";
+import { UI_LANGUAGE_OPTIONS } from "./constants/uiLocale";
+import { t } from "./ui/i18n";
 
 export function activate(context: vscode.ExtensionContext) {
   const generateDocDisposable = getGenerateDocDisposable(context);
@@ -37,24 +52,25 @@ function getGenerateDocDisposable(context: vscode.ExtensionContext) {
       const text = editor.document.getText(selection);
 
       if (!text) {
-        vscode.window.showWarningMessage("No text selected");
+        vscode.window.showWarningMessage(t("error.noTextSelected"));
         return;
       }
 
-      vscode.window.showInformationMessage("Generating documentation...");
+      vscode.window.showInformationMessage(t("info.generatingDocumentation"));
 
       try {
         const documentation = await generateDocumentation(text, context);
         if (!documentation) {
-          vscode.window.showErrorMessage("No documentation generated");
+          vscode.window.showErrorMessage(t("error.noDocumentationGenerated"));
           return;
         }
         editor.edit((editBuilder) => {
           editBuilder.insert(selection.start, documentation || "");
         });
       } catch (error) {
-        console.error("Error generating documentation:", error);
-        vscode.window.showErrorMessage("Error generating documentation");
+        vscode.window.showErrorMessage(
+          t("error.errorGeneratingDocumentation"),
+        );
         return;
       }
     },
@@ -82,6 +98,7 @@ function getResetApiKeyDisposable(context: vscode.ExtensionContext) {
     resetApiKey(context),
   );
 }
+
 function getAudocWebviewDisposable(context: vscode.ExtensionContext) {
   const provider = new AudocWebviewViewProvider(context);
   return vscode.window.registerWebviewViewProvider("audocView", provider);
@@ -90,9 +107,25 @@ function getAudocWebviewDisposable(context: vscode.ExtensionContext) {
 class AudocWebviewViewProvider implements vscode.WebviewViewProvider {
   static readonly viewType = "audocView";
 
-  constructor(private readonly context: vscode.ExtensionContext) {}
+  private _view?: vscode.WebviewView;
+
+  constructor(private readonly context: vscode.ExtensionContext) {
+    context.subscriptions.push(
+      vscode.workspace.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("audoc.uiLanguage") && this._view) {
+          this._view.webview.html = this.getHtml();
+          void this.sendInitialConfig(this._view.webview);
+        }
+      }),
+    );
+  }
 
   resolveWebviewView(webviewView: vscode.WebviewView): void {
+    this._view = webviewView;
+    webviewView.onDidDispose(() => {
+      this._view = undefined;
+    });
+
     const { webview } = webviewView;
 
     webview.options = {
@@ -108,45 +141,89 @@ class AudocWebviewViewProvider implements vscode.WebviewViewProvider {
         case "setApiKey": {
           const value = String(message.value ?? "").trim();
           if (!value) {
-            vscode.window.showWarningMessage("API key cannot be empty");
+            vscode.window.showWarningMessage(t("warning.apiKeyCannotBeEmpty"));
             return;
           }
           await this.context.secrets.store("audoc.apiKey", value);
-          vscode.window.showInformationMessage("API key stored securely");
+          vscode.window.showInformationMessage(t("success.apiKeyStoredSecurely"));
           break;
         }
         case "clearApiKey": {
           await this.context.secrets.delete("audoc.apiKey");
-          vscode.window.showInformationMessage("API key cleared successfully");
+          vscode.window.showInformationMessage(
+            t("success.apiKeyClearedSuccessfully"),
+          );
           break;
         }
         case "resetApiKey": {
           await this.context.secrets.delete("audoc.apiKey");
           vscode.window.showInformationMessage(
-            "API key cleared. Enter a new key to save it.",
+            t("success.apiKeyResetSuccessfully"),
+          );
+          break;
+        }
+        case "setUiLanguage": {
+          const config = vscode.workspace.getConfiguration("audoc");
+          await config.update(
+            "uiLanguage",
+            message.value,
+            vscode.ConfigurationTarget.Global,
+          );
+          const label =
+            UI_LANGUAGE_OPTIONS.find((o) => o.value === message.value)
+              ?.label ?? String(message.value);
+          vscode.window.showInformationMessage(
+            t("success.uiLanguageSetTo", label),
           );
           break;
         }
         case "setLanguage": {
           const config = vscode.workspace.getConfiguration("audoc");
-          await config.update("documentationLanguage", message.value, vscode.ConfigurationTarget.Global);
-          vscode.window.showInformationMessage(`Language set to: ${message.value}`);
+          await config.update(
+            "documentationLanguage",
+            message.value,
+            vscode.ConfigurationTarget.Global,
+          );
+          vscode.window.showInformationMessage(
+            t("success.languageSetTo", String(message.value)),
+          );
           break;
         }
         case "setProvider": {
           const config = vscode.workspace.getConfiguration("audoc");
-          await config.update("aiProvider", message.value, vscode.ConfigurationTarget.Global);
+          await config.update(
+            "aiProvider",
+            message.value,
+            vscode.ConfigurationTarget.Global,
+          );
           // Send updated models for the selected provider
           this.sendModelsForProvider(webview, message.value);
-          vscode.window.showInformationMessage(`AI Provider set to: ${message.value}`);
+          vscode.window.showInformationMessage(
+            t("success.providerSetTo", String(message.value)),
+          );
           break;
         }
         case "setModel": {
           const config = vscode.workspace.getConfiguration("audoc");
           const provider = config.get<string>("aiProvider");
-          const configKey = provider === "Google Gemini" ? "geminiModel" : "chatgptModel";
-          await config.update(configKey, message.value, vscode.ConfigurationTarget.Global);
-          vscode.window.showInformationMessage(`Model set to: ${message.value}`);
+          let configKey: "geminiModel" | "chatgptModel" | "deepseekModel";
+          if (provider === AIProvider.GoogleGemini) {
+            configKey = "geminiModel";
+          } else if (provider === AIProvider.ChatGPT) {
+            configKey = "chatgptModel";
+          } else if (provider === AIProvider.DeepSeek) {
+            configKey = "deepseekModel";
+          } else {
+            configKey = "geminiModel";
+          }
+          await config.update(
+            configKey,
+            message.value,
+            vscode.ConfigurationTarget.Global,
+          );
+          vscode.window.showInformationMessage(
+            t("success.modelSetTo", String(message.value)),
+          );
           break;
         }
         default:
@@ -157,58 +234,85 @@ class AudocWebviewViewProvider implements vscode.WebviewViewProvider {
 
   private async sendInitialConfig(webview: vscode.Webview): Promise<void> {
     const config = vscode.workspace.getConfiguration("audoc");
-    const currentLanguage = config.get<string>("documentationLanguage") || "";
-    const currentProvider = config.get<string>("aiProvider") || "Google Gemini";
-    
+    const currentUILanguage = config.get<string>("uiLanguage") || "en";
+    const currentLanguage =
+      config.get<Language>("documentationLanguage") || Language.English;
+    const currentProvider =
+      config.get<AIProvider>("aiProvider") || AIProvider.GoogleGemini;
     webview.postMessage({
       type: "initialize",
       data: {
-        languages: [
-          "English",
-          "简体中文",
-          "繁體中文",
-          "Español",
-          "Français",
-          "Deutsch",
-          "日本語",
-          "한국어",
-          "Português",
-          "Русский",
-          "Italiano",
-          "Nederlands"
-        ],
-        providers: ["Google Gemini", "ChatGPT"],
+        uiLanguageOptions: UI_LANGUAGE_OPTIONS,
+        currentUILanguage,
+        languages: LANGUAGES,
+        providers: AI_PROVIDERS,
         currentLanguage,
-        currentProvider
-      }
+        currentProvider,
+      },
     });
 
     this.sendModelsForProvider(webview, currentProvider);
   }
 
-  private sendModelsForProvider(webview: vscode.Webview, provider: string): void {
+  private sendModelsForProvider(
+    webview: vscode.Webview,
+    provider: string,
+  ): void {
     const config = vscode.workspace.getConfiguration("audoc");
     let models: string[] = [];
     let currentModel = "";
 
-    if (provider === "Google Gemini") {
-      models = GEMINI_MODELS;
-      currentModel = config.get<string>("geminiModel") || "gemini-3-flash-preview";
-    } else if (provider === "ChatGPT") {
-      models = CHATGPT_MODELS;
-      currentModel = config.get<string>("chatgptModel") || "gpt-5-nano";
+    switch (provider) {
+      case AIProvider.GoogleGemini:
+        models = GEMINI_MODELS;
+        currentModel =
+          config.get<GeminiModel>("geminiModel") ||
+          GeminiModel.Gemini3_FlashPreview;
+        break;
+      case AIProvider.ChatGPT:
+        models = CHATGPT_MODELS;
+        currentModel =
+          config.get<ChatGPTModel>("chatgptModel") ||
+          ChatGPTModel.GPT5_Nano_2025_08_07;
+        break;
+      case AIProvider.DeepSeek:
+        models = DEEPSEEK_MODELS;
+        currentModel =
+          config.get<DeepSeekModel>("deepseekModel") ||
+          DeepSeekModel.DeepSeekChat;
+        break;
+      default:
+        models = [];
+        currentModel = "";
+        break;
     }
 
     webview.postMessage({
       type: "updateModels",
       data: {
         models,
-        currentModel
-      }
+        currentModel,
+      },
     });
   }
 
   private getHtml(): string {
+    const title = t("html.title");
+    const heading = t("html.heading");
+    const labelUILanguage = t("html.labelUILanguage");
+    const labelLanguage = t("html.labelLanguage");
+    const labelProvider = t("html.labelProvider");
+    const labelModel = t("html.labelModel");
+    const labelApiKey = t("html.labelApiKey");
+    const placeholderApiKey = t("html.placeholderApiKey");
+    const placeholderUILanguage = t("html.placeholderUILanguage");
+    const placeholderLanguage = t("html.placeholderLanguage");
+    const placeholderProvider = t("html.placeholderProvider");
+    const placeholderModel = t("html.placeholderModel");
+    const labelSave = t("html.labelSave");
+    const labelClear = t("html.labelClear");
+    const labelReset = t("html.labelReset");
+
     return /* html */ `<!DOCTYPE html>
 <html lang="en">
   <head>
@@ -218,7 +322,7 @@ class AudocWebviewViewProvider implements vscode.WebviewViewProvider {
       content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Audoc</title>
+    <title>${title}</title>
     <style>
       body {
         font-family: var(--vscode-font-family);
@@ -282,42 +386,54 @@ class AudocWebviewViewProvider implements vscode.WebviewViewProvider {
     </style>
   </head>
   <body>
-    <h3>Audoc Configuration</h3>
+    <h3>${heading}</h3>
+
+    <div class="section">
+      <div class="field-label">${labelUILanguage}</div>
+      <select id="uiLanguageSelect">
+        <option value="">${placeholderUILanguage}</option>
+      </select>
+    </div>
     
     <div class="section">
-      <div class="field-label">Documentation Language</div>
+      <div class="field-label">${labelLanguage}</div>
       <select id="languageSelect">
-        <option value="">Select language...</option>
+        <option value="">${placeholderLanguage}</option>
       </select>
     </div>
 
     <div class="section">
-      <div class="field-label">AI Provider</div>
+      <div class="field-label">${labelProvider}</div>
       <select id="providerSelect">
-        <option value="">Select provider...</option>
+        <option value="">${placeholderProvider}</option>
       </select>
     </div>
 
     <div class="section">
-      <div class="field-label">Model</div>
+      <div class="field-label">${labelModel}</div>
       <select id="modelSelect">
-        <option value="">Select model...</option>
+        <option value="">${placeholderModel}</option>
       </select>
     </div>
 
     <div class="section">
-      <div class="field-label">API Key (stored securely)</div>
-      <input id="apiKeyInput" type="password" placeholder="Enter API key..." autocomplete="off" />
+      <div class="field-label">${labelApiKey}</div>
+      <input id="apiKeyInput" type="password" placeholder="${placeholderApiKey}" autocomplete="off" />
       <div class="buttons">
-        <button id="saveButton">Save</button>
-        <button id="clearButton" class="secondary">Clear</button>
-        <button id="resetButton" class="secondary">Reset</button>
+        <button id="saveButton">${labelSave}</button>
+        <button id="clearButton" class="secondary">${labelClear}</button>
+        <button id="resetButton" class="secondary">${labelReset}</button>
       </div>
     </div>
 
     <script>
       const vscode = acquireVsCodeApi();
+      const PLACEHOLDER_UI_LANGUAGE = ${JSON.stringify(placeholderUILanguage)};
+      const PLACEHOLDER_LANGUAGE = ${JSON.stringify(placeholderLanguage)};
+      const PLACEHOLDER_PROVIDER = ${JSON.stringify(placeholderProvider)};
+      const PLACEHOLDER_MODEL = ${JSON.stringify(placeholderModel)};
 
+      const uiLanguageSelect = document.getElementById('uiLanguageSelect');
       const languageSelect = document.getElementById('languageSelect');
       const providerSelect = document.getElementById('providerSelect');
       const modelSelect = document.getElementById('modelSelect');
@@ -332,6 +448,7 @@ class AudocWebviewViewProvider implements vscode.WebviewViewProvider {
         
         switch (message.type) {
           case 'initialize':
+            populateUILanguages(message.data.uiLanguageOptions, message.data.currentUILanguage);
             populateLanguages(message.data.languages, message.data.currentLanguage);
             populateProviders(message.data.providers, message.data.currentProvider);
             break;
@@ -341,8 +458,19 @@ class AudocWebviewViewProvider implements vscode.WebviewViewProvider {
         }
       });
 
+      function populateUILanguages(options, current) {
+        uiLanguageSelect.innerHTML = '<option value="">' + PLACEHOLDER_UI_LANGUAGE + '</option>';
+        (options || []).forEach(function (opt) {
+          const option = document.createElement('option');
+          option.value = opt.value;
+          option.textContent = opt.label;
+          option.selected = opt.value === current;
+          uiLanguageSelect.appendChild(option);
+        });
+      }
+
       function populateLanguages(languages, currentLanguage) {
-        languageSelect.innerHTML = '<option value="">Select language...</option>';
+        languageSelect.innerHTML = '<option value="">' + PLACEHOLDER_LANGUAGE + '</option>';
         languages.forEach(lang => {
           const option = document.createElement('option');
           option.value = lang;
@@ -353,7 +481,7 @@ class AudocWebviewViewProvider implements vscode.WebviewViewProvider {
       }
 
       function populateProviders(providers, currentProvider) {
-        providerSelect.innerHTML = '<option value="">Select provider...</option>';
+        providerSelect.innerHTML = '<option value="">' + PLACEHOLDER_PROVIDER + '</option>';
         providers.forEach(provider => {
           const option = document.createElement('option');
           option.value = provider;
@@ -364,7 +492,7 @@ class AudocWebviewViewProvider implements vscode.WebviewViewProvider {
       }
 
       function populateModels(models, currentModel) {
-        modelSelect.innerHTML = '<option value="">Select model...</option>';
+        modelSelect.innerHTML = '<option value="">' + PLACEHOLDER_MODEL + '</option>';
         models.forEach(model => {
           const option = document.createElement('option');
           option.value = model;
@@ -375,6 +503,15 @@ class AudocWebviewViewProvider implements vscode.WebviewViewProvider {
       }
 
       // Event listeners
+      uiLanguageSelect.addEventListener('change', () => {
+        if (uiLanguageSelect.value) {
+          vscode.postMessage({
+            type: 'setUiLanguage',
+            value: uiLanguageSelect.value
+          });
+        }
+      });
+
       languageSelect.addEventListener('change', () => {
         if (languageSelect.value) {
           vscode.postMessage({

@@ -66,62 +66,46 @@
     "configuration": {
       "title": "Audoc AI Settings",
       "properties": {
+        "audoc.uiLanguage": {
+          "order": 0,
+          "type": "string",
+          "enum": [
+            "en",
+            "zh-tw"
+          ],
+          "default": "en",
+          "description": "Language for Audoc UI (notifications and sidebar). Does not follow VS Code display language.",
+          "enumDescriptions": [
+            "English",
+            "Traditional Chinese (Taiwan)"
+          ]
+        },
         "audoc.documentationLanguage": {
           "order": 1,
           "type": "string",
-          "enum": [
-            "English",
-            "简体中文",
-            "繁體中文",
-            "Español",
-            "Français",
-            "Deutsch",
-            "日本語",
-            "한국어",
-            "Português",
-            "Русский",
-            "Italiano",
-            "Nederlands"
-          ],
+          "enum": [],
           "default": "",
           "description": "Select the language for the documentation."
         },
         "audoc.aiProvider": {
           "order": 2,
           "type": "string",
-          "enum": [
-            "Google Gemini",
-            "ChatGPT"
-          ],
-          "default": "Google Gemini",
+          "enum": [],
+          "default": "",
           "description": "Select the AI provider to use for generating documentation."
         },
         "audoc.geminiModel": {
           "order": 3,
           "type": "string",
-          "enum": [
-            "gemini-3.1-pro-preview",
-            "gemini-3.1-flash-lite-preview",
-            "gemini-3-pro-preview",
-            "gemini-3-flash-preview",
-            "gemini-2.5-pro",
-            "gemini-2.5-flash",
-            "gemini-2.5-flash-lite"
-          ],
-          "default": "gemini-3-flash-preview",
+          "enum": [],
+          "default": "",
           "description": "Model to use when AI Provider is Google Gemini."
         },
         "audoc.chatgptModel": {
           "order": 4,
           "type": "string",
-          "enum": [
-            "gpt-5.4",
-            "gpt-5-2025-08-07",
-            "gpt-5-mini-2025-08-07",
-            "gpt-5-nano-2025-08-07",
-            "gpt-4.1-2025-04-14"
-          ],
-          "default": "gpt-5-nano-2025-08-07",
+          "enum": [],
+          "default": "",
           "description": "Model to use when AI Provider is ChatGPT."
         }
       }

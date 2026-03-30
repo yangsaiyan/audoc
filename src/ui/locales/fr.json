@@ -1,0 +1,61 @@
+{
+  "html": {
+    "title": "Audoc",
+    "heading": "Paramètres d’Audoc",
+    "labelUILanguage": "Langue de l’interface",
+    "labelLanguage": "Langue du document",
+    "labelProvider": "Fournisseur d’IA",
+    "labelModel": "Modèle",
+    "labelApiKey": "Clé API (stockage sécurisé)",
+    "placeholderApiKey": "Entrez la clé API…",
+    "placeholderLanguage": "Sélectionnez une langue…",
+    "placeholderProvider": "Sélectionnez un fournisseur…",
+    "placeholderModel": "Sélectionnez un modèle…",
+    "placeholderUILanguage": "Sélectionnez la langue de l’interface…",
+    "labelSave": "Enregistrer",
+    "labelClear": "Effacer",
+    "labelReset": "Réinitialiser"
+  },
+  "error": {
+    "apiKeyNotSet": "La clé API n’est pas définie",
+    "noTextSelected": "Aucun texte sélectionné",
+    "noDocumentationGenerated": "Aucune documentation générée",
+    "errorGeneratingDocumentation": "Erreur lors de la génération de la documentation",
+    "selectedAIProviderNotSupported": "Le fournisseur d’IA sélectionné n’est pas pris en charge",
+    "failedRetrieveApiKey": "Échec de la récupération de la clé API : {0}",
+    "failedSetApiKey": "Échec de la définition de la clé API : {0}",
+    "failedClearApiKey": "Échec de la suppression de la clé API : {0}",
+    "failedResetApiKey": "Échec de la réinitialisation de la clé API : {0}",
+    "selectProviderFirst": "Veuillez d’abord sélectionner un fournisseur d’IA"
+  },
+  "info": {
+    "generatingDocumentation": "Génération de la documentation…"
+  },
+  "success": {
+    "apiKeyStoredSecurely": "La clé API a été stockée en toute sécurité",
+    "apiKeyClearedSuccessfully": "La clé API a été supprimée",
+    "apiKeyResetSuccessfully": "La clé API a été supprimée. Veuillez entrer une nouvelle clé et l’enregistrer.",
+    "apiKeyResetComplete": "La clé API a été réinitialisée",
+    "languageSetTo": "La langue du document a été définie sur : {0}",
+    "providerSetTo": "Le fournisseur d’IA a été défini sur : {0}",
+    "modelSetTo": "Le modèle a été défini sur : {0}",
+    "uiLanguageSetTo": "La langue de l’interface a été définie sur : {0}"
+  },
+  "warning": {
+    "apiKeyCannotBeEmpty": "La clé API ne peut pas être vide",
+    "apiKeyRequired": "Une clé API est requise pour générer la documentation",
+    "apiKeyNotUpdated": "La clé API n’a pas été mise à jour"
+  },
+  "prompt": {
+    "apiKey": "Entrez la clé API pour générer la documentation"
+  },
+  "placeholder": {
+    "apiKeySecure": "La clé API sera stockée en toute sécurité"
+  },
+  "validation": {
+    "apiKeyEmpty": "La clé API ne peut pas être vide"
+  },
+  "selectModel": {
+    "placeholder": "Sélectionnez le modèle {0}"
+  }
+}

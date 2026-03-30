@@ -1,8 +1,15 @@
 import * as vscode from "vscode";
 import { AIProvider } from "./type.ts/aiProvider";
 import { generateDocumentationWithGemini } from "./gemini/index";
-import { CHATGPT_MODELS, GEMINI_MODELS } from "../constants/model";
+import {
+  CHATGPT_MODELS,
+  DEEPSEEK_MODELS,
+  GEMINI_MODELS,
+} from "../constants/model";
+import { DeepSeekModel } from "./type.ts/models";
 import { generateDocumentationWithChatGPT } from "./openai";
+import { generateDocumentationWithDeepSeek } from "./deepseek";
+import { t } from "../ui/i18n";
 
 export async function generateDocumentation(
   text: string,
@@ -12,6 +19,14 @@ export async function generateDocumentation(
   const apiKey = await getApiKey(context);
   const language = getDocumentationLanguage();
   const model = getModel();
+
+  if (!apiKey) {
+    vscode.window.showWarningMessage(t("error.apiKeyNotSet"));
+    return;
+  } else if (!text || text.trim().length === 0) {
+    vscode.window.showWarningMessage(t("error.noTextSelected"));
+    return;
+  }
 
   switch (provider) {
     case AIProvider.GoogleGemini:
@@ -28,10 +43,15 @@ export async function generateDocumentation(
         language,
         model,
       );
-    default:
-      vscode.window.showErrorMessage(
-        "Selected AI provider is not supported yet",
+    case AIProvider.DeepSeek:
+      return generateDocumentationWithDeepSeek(
+        text,
+        apiKey ?? "",
+        language,
+        model,
       );
+    default:
+      vscode.window.showErrorMessage(t("error.selectedAIProviderNotSupported"));
       return "";
   }
 }
@@ -75,6 +95,16 @@ function getModel() {
       }
       return "gpt-5-nano";
     }
+    case AIProvider.DeepSeek: {
+      const model = config.get<string>("deepseekModel");
+      if (
+        model &&
+        DEEPSEEK_MODELS.includes(model as (typeof DEEPSEEK_MODELS)[number])
+      ) {
+        return model;
+      }
+      return DeepSeekModel.DeepSeekChat;
+    }
     default:
       return "gemini-3-flash-preview";
   }
@@ -88,32 +118,32 @@ export async function getApiKey(
 
     if (!apiKey) {
       apiKey = await vscode.window.showInputBox({
-        prompt: "Enter your API key for documentation generation",
-        placeHolder: "API key will be stored securely",
+        prompt: t("prompt.apiKey"),
+        placeHolder: t("placeholder.apiKeySecure"),
         password: true,
         ignoreFocusOut: true,
         validateInput: (value: string) => {
           if (!value || value.trim().length === 0) {
-            return "API key cannot be empty";
+            return t("validation.apiKeyEmpty");
           }
           return null;
         },
       });
 
       if (!apiKey?.trim()) {
-        vscode.window.showWarningMessage(
-          "API key is required for documentation generation",
-        );
+        vscode.window.showWarningMessage(t("warning.apiKeyRequired"));
         return undefined;
       }
 
       await context.secrets.store("audoc.apiKey", apiKey.trim());
-      vscode.window.showInformationMessage("API key stored securely");
+      vscode.window.showInformationMessage(t("success.apiKeyStoredSecurely"));
     }
 
     return apiKey;
   } catch (error) {
-    vscode.window.showErrorMessage(`Failed to retrieve API key: ${error}`);
+    vscode.window.showErrorMessage(
+      t("error.failedRetrieveApiKey", String(error)),
+    );
     return undefined;
   }
 }
@@ -123,27 +153,27 @@ export async function setApiKey(
 ): Promise<void> {
   try {
     const apiKey = await vscode.window.showInputBox({
-      prompt: "Enter your API key for documentation generation",
-      placeHolder: "API key will be stored securely",
+      prompt: t("prompt.apiKey"),
+      placeHolder: t("placeholder.apiKeySecure"),
       password: true,
       ignoreFocusOut: true,
       validateInput: (value: string) => {
         if (!value || value.trim().length === 0) {
-          return "API key cannot be empty";
+          return t("validation.apiKeyEmpty");
         }
         return null;
       },
     });
 
     if (!apiKey?.trim()) {
-      vscode.window.showWarningMessage("API key was not updated");
+      vscode.window.showWarningMessage(t("warning.apiKeyNotUpdated"));
       return;
     }
 
     await context.secrets.store("audoc.apiKey", apiKey.trim());
-    vscode.window.showInformationMessage("API key stored securely");
+    vscode.window.showInformationMessage(t("success.apiKeyStoredSecurely"));
   } catch (error) {
-    vscode.window.showErrorMessage(`Failed to set API key: ${error}`);
+    vscode.window.showErrorMessage(t("error.failedSetApiKey", String(error)));
   }
 }
 
@@ -152,9 +182,11 @@ export async function clearApiKey(
 ): Promise<void> {
   try {
     await context.secrets.delete("audoc.apiKey");
-    vscode.window.showInformationMessage("API key cleared successfully");
+    vscode.window.showInformationMessage(
+      t("success.apiKeyClearedSuccessfully"),
+    );
   } catch (error) {
-    vscode.window.showErrorMessage(`Failed to clear API key: ${error}`);
+    vscode.window.showErrorMessage(t("error.failedClearApiKey", String(error)));
   }
 }
 
@@ -163,7 +195,7 @@ export async function resetApiKey(
 ): Promise<void> {
   try {
     await context.secrets.delete("audoc.apiKey");
-    const newApiKey = await getApiKey(context); // This will prompt for new key
+    const newApiKey = await getApiKey(context);
     if (newApiKey) {
       vscode.window.showInformationMessage("API key reset successfully");
     }
@@ -177,7 +209,7 @@ export async function selectModel(): Promise<void> {
   const provider = getAIProvider();
 
   let models: readonly string[];
-  let configKey: "geminiModel" | "chatgptModel";
+  let configKey: "geminiModel" | "chatgptModel" | "deepseekModel";
   let providerName: string;
 
   switch (provider) {
@@ -191,13 +223,18 @@ export async function selectModel(): Promise<void> {
       configKey = "chatgptModel";
       providerName = "ChatGPT";
       break;
+    case AIProvider.DeepSeek:
+      models = DEEPSEEK_MODELS;
+      configKey = "deepseekModel";
+      providerName = "DeepSeek";
+      break;
     default:
-      vscode.window.showErrorMessage("Please select an AI provider first");
+      vscode.window.showErrorMessage(t("error.selectProviderFirst"));
       return;
   }
 
   const selectedModel = await vscode.window.showQuickPick([...models], {
-    placeHolder: `Select a ${providerName} model`,
+    placeHolder: t("selectModel.placeholder", providerName),
     ignoreFocusOut: true,
   });
 
@@ -207,6 +244,8 @@ export async function selectModel(): Promise<void> {
       selectedModel,
       vscode.ConfigurationTarget.Global,
     );
-    vscode.window.showInformationMessage(`Model set to: ${selectedModel}`);
+    vscode.window.showInformationMessage(
+      t("success.modelSetTo", selectedModel),
+    );
   }
 }
