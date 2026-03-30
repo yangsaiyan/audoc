@@ -1,16 +1,13 @@
 import OpenAI from "openai";
 import { PROMPT } from "../../constants/prompt";
+import { DEEPSEEK_MODELS } from "../../constants/model";
 
 export async function generateDocumentationWithDeepSeek(
   text: string,
-  apiKey: string | null,
+  apiKey: string,
   language: string,
-  model: string = "deepseek-chat",
+  model: string = DEEPSEEK_MODELS[0],
 ): Promise<string> {
-  if (!apiKey) {
-    throw new Error("DeepSeek API key is not set");
-  }
-
   const openai = new OpenAI({
     baseURL: "https://api.deepseek.com",
     apiKey: apiKey,

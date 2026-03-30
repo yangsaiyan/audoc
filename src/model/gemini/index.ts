@@ -1,15 +1,12 @@
 import { PROMPT } from "../../constants/prompt";
+import { GEMINI_MODELS } from "../../constants/model";
 
 export async function generateDocumentationWithGemini(
   text: string,
-  apiKey: string | null,
+  apiKey: string,
   language: string,
-  model: string = "gemini-3-flash-preview",
+  model: string = GEMINI_MODELS[0],
 ): Promise<string> {
-  if (!apiKey) {
-    throw new Error("Gemini API key is not set");
-  }
-
   const { GoogleGenAI } = await import("@google/genai");
   const ai = new GoogleGenAI({ apiKey });
 

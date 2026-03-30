@@ -19,3 +19,10 @@ export enum ChatGPTModel {
 export enum DeepSeekModel {
   DeepSeekChat = "deepseek-chat",
 }
+
+export enum AnthropicModel {
+  ClaudeOpus4_6 = "claude-opus-4-6",
+  ClaudeSonnet4_6 = "claude-sonnet-4-6",
+  ClaudeOpus4_5 = "claude-opus-4-5-20251101",
+  ClaudeSonnet4_5 = "claude-haiku-4-5-20251001",
+}

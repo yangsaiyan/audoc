@@ -9,10 +9,6 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-    "onCommand:audoc.generateDocumentation",
-    "onView:audocView"
-  ],
   "main": "./out/extension.js",
   "contributes": {
     "viewsContainers": {
@@ -27,6 +23,7 @@
     "views": {
       "audoc": [
         {
+          "icon": "media/audoc.svg",
           "id": "audocView",
           "name": "Audoc",
           "type": "webview"
@@ -45,10 +42,6 @@
       {
         "command": "audoc.clearApiKey",
         "title": "Clear API Key"
-      },
-      {
-        "command": "audoc.resetApiKey",
-        "title": "Reset API Key"
       },
       {
         "command": "audoc.selectModel",
@@ -130,6 +123,7 @@
     "typescript-eslint": "^8.56.1"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.80.0",
     "@google/genai": "^1.43.0",
     "@modelcontextprotocol/sdk": "^1.27.1",
     "openai": "^6.27.0"
