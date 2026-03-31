@@ -1,16 +1,13 @@
 import OpenAI from "openai";
 import { PROMPT } from "../../constants/prompt";
+import { CHATGPT_MODELS } from "../../constants/model";
 
 export async function generateDocumentationWithChatGPT(
   text: string,
-  apiKey: string | null,
+  apiKey: string,
   language: string,
-  model: string = "gpt-4",
+  model: string = CHATGPT_MODELS[0],
 ): Promise<string> {
-  if (!apiKey) {
-    throw new Error("ChatGPT API key is not set");
-  }
-
   const openai = new OpenAI({
     apiKey: apiKey,
   });

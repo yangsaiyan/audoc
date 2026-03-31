@@ -2,7 +2,6 @@ import * as vscode from "vscode";
 import {
   clearApiKey,
   generateDocumentation,
-  resetApiKey,
   selectModel,
   setApiKey,
 } from "./model";
@@ -10,25 +9,27 @@ import {
   GEMINI_MODELS,
   CHATGPT_MODELS,
   DEEPSEEK_MODELS,
+  ANTHROPIC_MODELS,
 } from "./constants/model";
 import { LANGUAGES } from "./constants/language";
 import { AI_PROVIDERS } from "./constants/provider";
 import { Language } from "./model/type.ts/languages";
 import { AIProvider } from "./model/type.ts/aiProvider";
 import {
+  AnthropicModel,
   ChatGPTModel,
   DeepSeekModel,
   GeminiModel,
 } from "./model/type.ts/models";
 import { UI_LANGUAGE_OPTIONS } from "./constants/uiLocale";
 import { t } from "./ui/i18n";
+import { ConfigKey } from "./model/type.ts/configKey";
 
 export function activate(context: vscode.ExtensionContext) {
   const generateDocDisposable = getGenerateDocDisposable(context);
   const selectModelDisposable = getSelectModelDisposable();
   const setApiKeyDisposable = getSetApiKeyDisposable(context);
   const clearApiKeyDisposable = getClearApiKeyDisposable(context);
-  const resetApiKeyDisposable = getResetApiKeyDisposable(context);
   const audocViewDisposable = getAudocWebviewDisposable(context);
 
   registerDisposables(context, [
@@ -36,7 +37,6 @@ export function activate(context: vscode.ExtensionContext) {
     selectModelDisposable,
     setApiKeyDisposable,
     clearApiKeyDisposable,
-    resetApiKeyDisposable,
     audocViewDisposable,
   ]);
 }
@@ -69,7 +69,9 @@ function getGenerateDocDisposable(context: vscode.ExtensionContext) {
         });
       } catch (error) {
         vscode.window.showErrorMessage(
-          t("error.errorGeneratingDocumentation"),
+          `${t("error.errorGeneratingDocumentation")}: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
         );
         return;
       }
@@ -93,12 +95,6 @@ function getClearApiKeyDisposable(context: vscode.ExtensionContext) {
   );
 }
 
-function getResetApiKeyDisposable(context: vscode.ExtensionContext) {
-  return vscode.commands.registerCommand("audoc.resetApiKey", () =>
-    resetApiKey(context),
-  );
-}
-
 function getAudocWebviewDisposable(context: vscode.ExtensionContext) {
   const provider = new AudocWebviewViewProvider(context);
   return vscode.window.registerWebviewViewProvider("audocView", provider);
@@ -114,7 +110,6 @@ class AudocWebviewViewProvider implements vscode.WebviewViewProvider {
       vscode.workspace.onDidChangeConfiguration((e) => {
         if (e.affectsConfiguration("audoc.uiLanguage") && this._view) {
           this._view.webview.html = this.getHtml();
-          void this.sendInitialConfig(this._view.webview);
         }
       }),
     );
@@ -132,12 +127,12 @@ class AudocWebviewViewProvider implements vscode.WebviewViewProvider {
       enableScripts: true,
     };
 
-    webview.html = this.getHtml();
-
-    this.sendInitialConfig(webview);
-
     webview.onDidReceiveMessage(async (message) => {
       switch (message.type) {
+        case "webviewReady": {
+          this.sendInitialConfig(webview);
+          break;
+        }
         case "setApiKey": {
           const value = String(message.value ?? "").trim();
           if (!value) {
@@ -145,20 +140,15 @@ class AudocWebviewViewProvider implements vscode.WebviewViewProvider {
             return;
           }
           await this.context.secrets.store("audoc.apiKey", value);
-          vscode.window.showInformationMessage(t("success.apiKeyStoredSecurely"));
+          vscode.window.showInformationMessage(
+            t("success.apiKeyStoredSecurely"),
+          );
           break;
         }
         case "clearApiKey": {
           await this.context.secrets.delete("audoc.apiKey");
           vscode.window.showInformationMessage(
             t("success.apiKeyClearedSuccessfully"),
-          );
-          break;
-        }
-        case "resetApiKey": {
-          await this.context.secrets.delete("audoc.apiKey");
-          vscode.window.showInformationMessage(
-            t("success.apiKeyResetSuccessfully"),
           );
           break;
         }
@@ -169,12 +159,6 @@ class AudocWebviewViewProvider implements vscode.WebviewViewProvider {
             message.value,
             vscode.ConfigurationTarget.Global,
           );
-          const label =
-            UI_LANGUAGE_OPTIONS.find((o) => o.value === message.value)
-              ?.label ?? String(message.value);
-          vscode.window.showInformationMessage(
-            t("success.uiLanguageSetTo", label),
-          );
           break;
         }
         case "setLanguage": {
@@ -183,9 +167,6 @@ class AudocWebviewViewProvider implements vscode.WebviewViewProvider {
             "documentationLanguage",
             message.value,
             vscode.ConfigurationTarget.Global,
-          );
-          vscode.window.showInformationMessage(
-            t("success.languageSetTo", String(message.value)),
           );
           break;
         }
@@ -196,33 +177,34 @@ class AudocWebviewViewProvider implements vscode.WebviewViewProvider {
             message.value,
             vscode.ConfigurationTarget.Global,
           );
-          // Send updated models for the selected provider
           this.sendModelsForProvider(webview, message.value);
-          vscode.window.showInformationMessage(
-            t("success.providerSetTo", String(message.value)),
-          );
           break;
         }
         case "setModel": {
           const config = vscode.workspace.getConfiguration("audoc");
           const provider = config.get<string>("aiProvider");
-          let configKey: "geminiModel" | "chatgptModel" | "deepseekModel";
-          if (provider === AIProvider.GoogleGemini) {
-            configKey = "geminiModel";
-          } else if (provider === AIProvider.ChatGPT) {
-            configKey = "chatgptModel";
-          } else if (provider === AIProvider.DeepSeek) {
-            configKey = "deepseekModel";
-          } else {
-            configKey = "geminiModel";
+          let configKey: ConfigKey.modelConfigKeyType;
+          switch (provider) {
+            case AIProvider.GoogleGemini:
+              configKey = ConfigKey.modelConfigKey.GeminiModel;
+              break;
+            case AIProvider.ChatGPT:
+              configKey = ConfigKey.modelConfigKey.ChatgptModel;
+              break;
+            case AIProvider.DeepSeek:
+              configKey = ConfigKey.modelConfigKey.DeepseekModel;
+              break;
+            case AIProvider.Anthropic:
+              configKey = ConfigKey.modelConfigKey.AnthropicModel;
+              break;
+            default:
+              configKey = ConfigKey.modelConfigKey.GeminiModel;
+              break;
           }
           await config.update(
             configKey,
             message.value,
             vscode.ConfigurationTarget.Global,
-          );
-          vscode.window.showInformationMessage(
-            t("success.modelSetTo", String(message.value)),
           );
           break;
         }
@@ -230,6 +212,8 @@ class AudocWebviewViewProvider implements vscode.WebviewViewProvider {
           break;
       }
     });
+
+    webview.html = this.getHtml();
   }
 
   private async sendInitialConfig(webview: vscode.Webview): Promise<void> {
@@ -266,20 +250,26 @@ class AudocWebviewViewProvider implements vscode.WebviewViewProvider {
       case AIProvider.GoogleGemini:
         models = GEMINI_MODELS;
         currentModel =
-          config.get<GeminiModel>("geminiModel") ||
+          config.get<GeminiModel>(ConfigKey.modelConfigKey.GeminiModel) ||
           GeminiModel.Gemini3_FlashPreview;
         break;
       case AIProvider.ChatGPT:
         models = CHATGPT_MODELS;
         currentModel =
-          config.get<ChatGPTModel>("chatgptModel") ||
+          config.get<ChatGPTModel>(ConfigKey.modelConfigKey.ChatgptModel) ||
           ChatGPTModel.GPT5_Nano_2025_08_07;
         break;
       case AIProvider.DeepSeek:
         models = DEEPSEEK_MODELS;
         currentModel =
-          config.get<DeepSeekModel>("deepseekModel") ||
+          config.get<DeepSeekModel>(ConfigKey.modelConfigKey.DeepseekModel) ||
           DeepSeekModel.DeepSeekChat;
+        break;
+      case AIProvider.Anthropic:
+        models = ANTHROPIC_MODELS;
+        currentModel =
+          config.get<AnthropicModel>(ConfigKey.modelConfigKey.AnthropicModel) ||
+          AnthropicModel.ClaudeOpus4_6;
         break;
       default:
         models = [];
@@ -422,7 +412,6 @@ class AudocWebviewViewProvider implements vscode.WebviewViewProvider {
       <div class="buttons">
         <button id="saveButton">${labelSave}</button>
         <button id="clearButton" class="secondary">${labelClear}</button>
-        <button id="resetButton" class="secondary">${labelReset}</button>
       </div>
     </div>
 
@@ -457,6 +446,8 @@ class AudocWebviewViewProvider implements vscode.WebviewViewProvider {
             break;
         }
       });
+
+      vscode.postMessage({ type: 'webviewReady' });
 
       function populateUILanguages(options, current) {
         uiLanguageSelect.innerHTML = '<option value="">' + PLACEHOLDER_UI_LANGUAGE + '</option>';

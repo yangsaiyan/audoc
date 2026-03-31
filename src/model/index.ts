@@ -5,11 +5,14 @@ import {
   CHATGPT_MODELS,
   DEEPSEEK_MODELS,
   GEMINI_MODELS,
+  ANTHROPIC_MODELS,
 } from "../constants/model";
 import { DeepSeekModel } from "./type.ts/models";
 import { generateDocumentationWithChatGPT } from "./openai";
 import { generateDocumentationWithDeepSeek } from "./deepseek";
 import { t } from "../ui/i18n";
+import { ConfigKey } from "./type.ts/configKey";
+import { generateDocumentationWithAnthropic } from "./anthropic";
 
 export async function generateDocumentation(
   text: string,
@@ -23,30 +26,39 @@ export async function generateDocumentation(
   if (!apiKey) {
     vscode.window.showWarningMessage(t("error.apiKeyNotSet"));
     return;
-  } else if (!text || text.trim().length === 0) {
+  }
+
+  if (!text || text.trim().length === 0) {
     vscode.window.showWarningMessage(t("error.noTextSelected"));
     return;
   }
 
   switch (provider) {
     case AIProvider.GoogleGemini:
-      return generateDocumentationWithGemini(
+      return await generateDocumentationWithGemini(
         text,
-        apiKey ?? "",
+        apiKey,
         language,
         model,
       );
     case AIProvider.ChatGPT:
-      return generateDocumentationWithChatGPT(
+      return await generateDocumentationWithChatGPT(
         text,
-        apiKey ?? "",
+        apiKey,
         language,
         model,
       );
     case AIProvider.DeepSeek:
-      return generateDocumentationWithDeepSeek(
+      return await generateDocumentationWithDeepSeek(
         text,
-        apiKey ?? "",
+        apiKey,
+        language,
+        model,
+      );
+    case AIProvider.Anthropic:
+      return await generateDocumentationWithAnthropic(
+        text,
+        apiKey,
         language,
         model,
       );
@@ -209,24 +221,29 @@ export async function selectModel(): Promise<void> {
   const provider = getAIProvider();
 
   let models: readonly string[];
-  let configKey: "geminiModel" | "chatgptModel" | "deepseekModel";
+  let configKey: ConfigKey.modelConfigKeyType;
   let providerName: string;
 
   switch (provider) {
     case AIProvider.GoogleGemini:
       models = GEMINI_MODELS;
-      configKey = "geminiModel";
+      configKey = ConfigKey.modelConfigKey.GeminiModel;
       providerName = "Google Gemini";
       break;
     case AIProvider.ChatGPT:
       models = CHATGPT_MODELS;
-      configKey = "chatgptModel";
+      configKey = ConfigKey.modelConfigKey.ChatgptModel;
       providerName = "ChatGPT";
       break;
     case AIProvider.DeepSeek:
       models = DEEPSEEK_MODELS;
-      configKey = "deepseekModel";
+      configKey = ConfigKey.modelConfigKey.DeepseekModel;
       providerName = "DeepSeek";
+      break;
+    case AIProvider.Anthropic:
+      models = ANTHROPIC_MODELS;
+      configKey = ConfigKey.modelConfigKey.AnthropicModel;
+      providerName = "Anthropic";
       break;
     default:
       vscode.window.showErrorMessage(t("error.selectProviderFirst"));
