@@ -3,6 +3,7 @@
   "displayName": "Audoc",
   "description": "",
   "version": "0.0.1",
+  "publisher": "Audoc",
   "engines": {
     "vscode": "^1.109.0"
   },
