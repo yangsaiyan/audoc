@@ -1,71 +1,57 @@
-# audoc README
+# Audoc
 
-This is the README for your extension "audoc". After writing up a brief description, we recommend including the following sections.
+Audoc is a Visual Studio Code extension that generates documentation from selected code or text using configurable AI providers.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- **Generate documentation** from the current editor selection via the command palette or the editor context menu.
+- **Audoc sidebar** for managing your API key, documentation language, AI provider, and model.
+- **Configurable interface language** — Audoc's UI defaults to English and does not follow VS Code's display language. Change it from the sidebar or `audoc.uiLanguage` in settings.
 
-For example if there is an image subfolder under your extension project workspace:
+## Supported AI providers
 
-\!\[feature X\]\(images/feature-x.png\)
+| Provider | Setting key for model |
+|---|---|
+| Google Gemini | `audoc.geminiModel` |
+| ChatGPT | `audoc.chatgptModel` |
+| DeepSeek | `audoc.deepseekModel` |
+| Anthropic (Claude) | `audoc.anthropicModel` |
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+## Usage
+
+1. Open the **Audoc** view from the activity bar.
+2. Enter and save your **API key** for the provider you want to use (stored in VS Code's secret storage).
+3. Select **documentation language**, **AI provider**, and **model**.
+4. Select text in an editor and run **Audoc: Generate Documentation** (or right-click → **Generate Documentation**).
+
+## Settings
+
+| Setting | Description |
+|---|---|
+| `audoc.uiLanguage` | Language for Audoc's UI. Supported: `en`, `zh-tw`, `zh-cn`, `es`, `fr`. Default: `en`. |
+| `audoc.documentationLanguage` | Language used in the generated documentation text. |
+| `audoc.aiProvider` | AI provider to use: `Google Gemini`, `ChatGPT`, `DeepSeek`, or `Anthropic`. |
+| `audoc.geminiModel` | Model when the provider is Google Gemini. |
+| `audoc.chatgptModel` | Model when the provider is ChatGPT. |
+| `audoc.deepseekModel` | Model when the provider is DeepSeek. |
+| `audoc.anthropicModel` | Model when the provider is Anthropic. |
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+- A valid API key for the AI provider you select.
+- Network access to the provider's API endpoint.
 
-## Extension Settings
+## Development
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+```bash
+yarn install
+yarn compile
+```
 
-For example:
+Press **F5** in VS Code to launch the Extension Development Host with Audoc loaded.
 
-This extension contributes the following settings:
+## Release notes
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+### 0.0.1
 
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+Initial release.
