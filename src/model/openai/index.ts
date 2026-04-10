@@ -7,6 +7,7 @@ export async function generateDocumentationWithChatGPT(
   apiKey: string,
   language: string,
   model: string = CHATGPT_MODELS[0],
+  languageId: string = "plaintext",
 ): Promise<string> {
   const openai = new OpenAI({
     apiKey: apiKey,
@@ -14,7 +15,7 @@ export async function generateDocumentationWithChatGPT(
 
   const response = await openai.responses.create({
     model: model,
-    input: PROMPT(language, text),
+    input: PROMPT(language, text, languageId),
     store: true,
   });
 

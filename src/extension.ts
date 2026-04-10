@@ -42,7 +42,8 @@ function getGenerateDocDisposable(context: vscode.ExtensionContext) {
       vscode.window.showInformationMessage(t("info.generatingDocumentation"));
 
       try {
-        const documentation = await generateDocumentation(text, context);
+        const languageId = editor.document.languageId;
+        const documentation = await generateDocumentation(text, context, languageId);
         if (!documentation) {
           vscode.window.showErrorMessage(t("error.noDocumentationGenerated"));
           return;

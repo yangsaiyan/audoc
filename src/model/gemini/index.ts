@@ -6,13 +6,14 @@ export async function generateDocumentationWithGemini(
   apiKey: string,
   language: string,
   model: string = GEMINI_MODELS[0],
+  languageId: string = "plaintext",
 ): Promise<string> {
   const { GoogleGenAI } = await import("@google/genai");
   const ai = new GoogleGenAI({ apiKey });
 
   const response = await ai.models.generateContent({
     model: model,
-    contents: PROMPT(language, text),
+    contents: PROMPT(language, text, languageId),
   });
 
   const documentation = response.text ?? "";

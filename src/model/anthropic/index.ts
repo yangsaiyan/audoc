@@ -8,6 +8,7 @@ export async function generateDocumentationWithAnthropic(
   apiKey: string,
   language: string,
   model: string = ANTHROPIC_MODELS[0],
+  languageId: string = "plaintext",
 ): Promise<string> {
   const client = new Anthropic({
     apiKey: apiKey,
@@ -19,7 +20,7 @@ export async function generateDocumentationWithAnthropic(
     messages: [
       {
         role: "user",
-        content: PROMPT(language, text),
+        content: PROMPT(language, text, languageId),
       },
     ],
   });

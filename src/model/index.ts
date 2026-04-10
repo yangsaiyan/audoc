@@ -17,6 +17,7 @@ import { generateDocumentationWithAnthropic } from "./anthropic";
 export async function generateDocumentation(
   text: string,
   context: vscode.ExtensionContext,
+  languageId: string,
 ) {
   const provider = getAIProvider();
   const apiKey = await getApiKey(context);
@@ -40,6 +41,7 @@ export async function generateDocumentation(
         apiKey,
         language,
         model,
+        languageId,
       );
     case AIProvider.ChatGPT:
       return await generateDocumentationWithChatGPT(
@@ -47,6 +49,7 @@ export async function generateDocumentation(
         apiKey,
         language,
         model,
+        languageId,
       );
     case AIProvider.DeepSeek:
       return await generateDocumentationWithDeepSeek(
@@ -54,6 +57,7 @@ export async function generateDocumentation(
         apiKey,
         language,
         model,
+        languageId,
       );
     case AIProvider.Anthropic:
       return await generateDocumentationWithAnthropic(
@@ -61,6 +65,7 @@ export async function generateDocumentation(
         apiKey,
         language,
         model,
+        languageId,
       );
     default:
       vscode.window.showErrorMessage(t("error.selectedAIProviderNotSupported"));
