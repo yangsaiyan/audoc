@@ -26,7 +26,8 @@
     "failedSetApiKey": "Échec de la définition de la clé API : {0}",
     "failedClearApiKey": "Échec de la suppression de la clé API : {0}",
     "failedResetApiKey": "Échec de la réinitialisation de la clé API : {0}",
-    "selectProviderFirst": "Veuillez d’abord sélectionner un fournisseur d’IA"
+    "selectProviderFirst": "Veuillez d’abord sélectionner un fournisseur d’IA",
+    "modelNotSet": "Veuillez d’abord sélectionner un modèle"
   },
   "info": {
     "generatingDocumentation": "Génération de la documentation…"

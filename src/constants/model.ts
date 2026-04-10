@@ -19,4 +19,5 @@ export const PROVIDER_MODELS_MAP: Record<AIProvider, string[]> = {
   [AIProvider.ChatGPT]: CHATGPT_MODELS,
   [AIProvider.DeepSeek]: DEEPSEEK_MODELS,
   [AIProvider.Anthropic]: ANTHROPIC_MODELS,
+  [AIProvider.Ollama]: [],
 };

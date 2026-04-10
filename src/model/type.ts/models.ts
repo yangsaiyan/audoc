@@ -26,3 +26,5 @@ export enum AnthropicModel {
   ClaudeOpus4_5 = "claude-opus-4-5-20251101",
   ClaudeSonnet4_5 = "claude-haiku-4-5-20251001",
 }
+
+export enum OllamaModel {}

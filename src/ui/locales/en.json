@@ -26,7 +26,8 @@
     "failedSetApiKey": "Failed to set API key: {0}",
     "failedClearApiKey": "Failed to clear API key: {0}",
     "failedResetApiKey": "Failed to reset API key: {0}",
-    "selectProviderFirst": "Please select an AI provider first"
+    "selectProviderFirst": "Please select an AI provider first",
+    "modelNotSet": "Please select a model"
   },
   "info": {
     "generatingDocumentation": "Generating documentation..."

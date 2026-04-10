@@ -26,7 +26,8 @@
     "failedSetApiKey": "設定 API 金鑰失敗：{0}",
     "failedClearApiKey": "清除 API 金鑰失敗：{0}",
     "failedResetApiKey": "重設 API 金鑰失敗：{0}",
-    "selectProviderFirst": "請先選擇 AI 提供者"
+    "selectProviderFirst": "請先選擇 AI 提供者",
+    "modelNotSet": "請先選擇模型"
   },
   "info": {
     "generatingDocumentation": "正在產生文件…"

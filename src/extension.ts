@@ -43,7 +43,11 @@ function getGenerateDocDisposable(context: vscode.ExtensionContext) {
 
       try {
         const languageId = editor.document.languageId;
-        const documentation = await generateDocumentation(text, context, languageId);
+        const documentation = await generateDocumentation(
+          text,
+          context,
+          languageId,
+        );
         if (!documentation) {
           vscode.window.showErrorMessage(t("error.noDocumentationGenerated"));
           return;
@@ -78,22 +82,17 @@ function getClearApiKeyDisposable(context: vscode.ExtensionContext) {
     clearApiKey(context),
   );
 }
- 
+
 function getAudocWebviewDisposable(context: vscode.ExtensionContext) {
   const provider = new AudocWebviewViewProvider(context);
   return vscode.window.registerWebviewViewProvider("audocView", provider);
-}   
-  
+}
+
 function registerDisposables(
   context: vscode.ExtensionContext,
   disposables: vscode.Disposable[],
 ) {
   context.subscriptions.push(...disposables);
 }
-
-function getExtensionVersion(context: vscode.ExtensionContext): string {
-  const { version } = context.extension.packageJSON;
-  return version || "unknown"
-} 
 
 export function deactivate() {}

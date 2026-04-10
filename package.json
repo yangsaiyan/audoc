@@ -101,6 +101,20 @@
           "enum": [],
           "default": "",
           "description": "Model to use when AI Provider is ChatGPT."
+        },
+        "audoc.anthropicModel": {
+          "order": 5,
+          "type": "string",
+          "enum": [],
+          "default": "",
+          "description": "Model to use when AI Provider is Anthropic."
+        },
+        "audoc.ollamaModel": {
+          "order": 6,
+          "type": "string",
+          "enum": [],
+          "default": "",
+          "description": "Model to use when AI Provider is Ollama."
         }
       }
     }
@@ -127,6 +141,7 @@
     "@anthropic-ai/sdk": "^0.80.0",
     "@google/genai": "^1.43.0",
     "@modelcontextprotocol/sdk": "^1.27.1",
+    "axios": "^1.15.0",
     "ollama": "^0.6.3",
     "openai": "^6.27.0"
   }
