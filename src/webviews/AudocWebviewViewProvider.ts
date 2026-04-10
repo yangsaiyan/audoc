@@ -5,12 +5,23 @@ import { Language } from "../model/type.ts/languages";
 import { UI_LANGUAGE_OPTIONS } from "../constants/uiLocale";
 import { LANGUAGES } from "../constants/language";
 import { AI_PROVIDERS } from "../constants/provider";
-import { ANTHROPIC_MODELS, CHATGPT_MODELS, DEEPSEEK_MODELS, GEMINI_MODELS } from "../constants/model";
-import { AnthropicModel, ChatGPTModel, DeepSeekModel, GeminiModel } from "../model/type.ts/models";
+import {
+  ANTHROPIC_MODELS,
+  CHATGPT_MODELS,
+  DEEPSEEK_MODELS,
+  GEMINI_MODELS,
+} from "../constants/model";
+import {
+  AnthropicModel,
+  ChatGPTModel,
+  DeepSeekModel,
+  GeminiModel,
+} from "../model/type.ts/models";
 import { t } from "../ui/i18n";
+import { fetchData } from "../api/http";
 
 export class AudocWebviewViewProvider implements vscode.WebviewViewProvider {
-  static readonly viewType = "audocView";   
+  static readonly viewType = "audocView";
 
   private _view?: vscode.WebviewView;
 
@@ -106,6 +117,9 @@ export class AudocWebviewViewProvider implements vscode.WebviewViewProvider {
             case AIProvider.Anthropic:
               configKey = ConfigKey.modelConfigKey.AnthropicModel;
               break;
+            case AIProvider.Ollama:
+              configKey = ConfigKey.modelConfigKey.OllamaModel;
+              break;
             default:
               configKey = ConfigKey.modelConfigKey.GeminiModel;
               break;
@@ -147,10 +161,10 @@ export class AudocWebviewViewProvider implements vscode.WebviewViewProvider {
     this.sendModelsForProvider(webview, currentProvider);
   }
 
-  private sendModelsForProvider(
+  private async sendModelsForProvider(
     webview: vscode.Webview,
     provider: string,
-  ): void {
+  ): Promise<void> {
     const config = vscode.workspace.getConfiguration("audoc");
     let models: string[] = [];
     let currentModel = "";
@@ -179,6 +193,17 @@ export class AudocWebviewViewProvider implements vscode.WebviewViewProvider {
         currentModel =
           config.get<AnthropicModel>(ConfigKey.modelConfigKey.AnthropicModel) ||
           AnthropicModel.ClaudeOpus4_6;
+        break;
+      case AIProvider.Ollama:
+        const fetchedModels = await fetchData(
+          "http://localhost:11434/api/tags",
+        );
+        models = fetchedModels?.models.map(
+          (model: any) => model.name,
+        ) as string[];
+        currentModel =
+          config.get<string>(ConfigKey.modelConfigKey.OllamaModel) ||
+          (models.length > 0 ? models[0] : "");
         break;
       default:
         models = [];

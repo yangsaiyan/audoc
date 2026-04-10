@@ -3,12 +3,14 @@ export namespace ConfigKey {
     | modelConfigKey.GeminiModel
     | modelConfigKey.ChatgptModel
     | modelConfigKey.DeepseekModel
-    | modelConfigKey.AnthropicModel;
+    | modelConfigKey.AnthropicModel
+    | modelConfigKey.OllamaModel;
 
   export enum modelConfigKey {
     GeminiModel = "geminiModel",
     ChatgptModel = "chatgptModel",
     DeepseekModel = "deepseekModel",
     AnthropicModel = "anthropicModel",
+    OllamaModel = "ollamaModel",
   }
 }

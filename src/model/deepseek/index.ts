@@ -7,6 +7,7 @@ export async function generateDocumentationWithDeepSeek(
   apiKey: string,
   language: string,
   model: string = DEEPSEEK_MODELS[0],
+  languageId: string = "plaintext",
 ): Promise<string> {
   const openai = new OpenAI({
     baseURL: "https://api.deepseek.com",
@@ -18,7 +19,7 @@ export async function generateDocumentationWithDeepSeek(
     messages: [
       {
         role: "system",
-        content: PROMPT(language, text),
+        content: PROMPT(language, text, languageId),
       },
     ],
   });

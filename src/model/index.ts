@@ -7,23 +7,25 @@ import {
   GEMINI_MODELS,
   ANTHROPIC_MODELS,
 } from "../constants/model";
-import { DeepSeekModel } from "./type.ts/models";
+import { AnthropicModel, DeepSeekModel } from "./type.ts/models";
 import { generateDocumentationWithChatGPT } from "./openai";
 import { generateDocumentationWithDeepSeek } from "./deepseek";
 import { t } from "../ui/i18n";
 import { ConfigKey } from "./type.ts/configKey";
 import { generateDocumentationWithAnthropic } from "./anthropic";
+import { generateDocumentationWithOllama } from "./ollama";
 
 export async function generateDocumentation(
   text: string,
   context: vscode.ExtensionContext,
+  languageId: string,
 ) {
   const provider = getAIProvider();
   const apiKey = await getApiKey(context);
   const language = getDocumentationLanguage();
   const model = getModel();
 
-  if (!apiKey) {
+  if (!apiKey && provider !== AIProvider.Ollama) {
     vscode.window.showWarningMessage(t("error.apiKeyNotSet"));
     return;
   }
@@ -33,39 +35,86 @@ export async function generateDocumentation(
     return;
   }
 
+  if (!model) {
+    vscode.window.showWarningMessage(t("error.modelNotSet"));
+    return;
+  }
+
+  let result: string | undefined;
+
   switch (provider) {
     case AIProvider.GoogleGemini:
-      return await generateDocumentationWithGemini(
+      result = await generateDocumentationWithGemini(
         text,
-        apiKey,
+        apiKey!,
         language,
         model,
+        languageId,
       );
+      break;
     case AIProvider.ChatGPT:
-      return await generateDocumentationWithChatGPT(
+      result = await generateDocumentationWithChatGPT(
         text,
-        apiKey,
+        apiKey!,
         language,
         model,
+        languageId,
       );
+      break;
     case AIProvider.DeepSeek:
-      return await generateDocumentationWithDeepSeek(
+      result = await generateDocumentationWithDeepSeek(
         text,
-        apiKey,
+        apiKey!,
         language,
         model,
+        languageId,
       );
+      break;
     case AIProvider.Anthropic:
-      return await generateDocumentationWithAnthropic(
+      result = await generateDocumentationWithAnthropic(
         text,
-        apiKey,
+        apiKey!,
         language,
         model,
+        languageId,
       );
+      break;
+    case AIProvider.Ollama:
+      result = await generateDocumentationWithOllama(
+        text,
+        language,
+        model,
+        languageId,
+      );
+      break;
     default:
       vscode.window.showErrorMessage(t("error.selectedAIProviderNotSupported"));
       return "";
   }
+
+  return result ? stripCodeFromDocumentation(result) : "";
+}
+
+function stripCodeFromDocumentation(raw: string): string {
+  // Remove markdown code fences if the LLM wrapped the output
+  let text = raw.trim();
+  if (text.startsWith("```")) {
+    text = text.replace(/^```\w*\n?/, "").replace(/\n?```$/, "").trim();
+  }
+
+  // Extract only comment blocks, dropping any source code the LLM echoed back.
+  // Matches: block comments (/* ... */), line comments (// ..., # ..., -- ...),
+  // Python docstrings (""" ... """ or ''' ... '''), and HTML comments (<!-- ... -->).
+  const commentPattern =
+    /(\/\*\*[\s\S]*?\*\/|\/\*[\s\S]*?\*\/|((?:^|\n)(?:\/\/|#(?!!)|--|;;).*)+|"""[\s\S]*?"""|'''[\s\S]*?'''|<!--[\s\S]*?-->)/g;
+
+  const matches = text.match(commentPattern);
+  if (matches && matches.length > 0) {
+    return matches[0].trim() + "\n";
+  }
+
+  // Fallback: return as-is if no comment block detected (e.g. unusual format)
+  return text + "\n";
 }
 
 function getAIProvider() {
@@ -117,6 +166,23 @@ function getModel() {
       }
       return DeepSeekModel.DeepSeekChat;
     }
+    case AIProvider.Anthropic: {
+      const model = config.get<string>("anthropicModel");
+      if (
+        model &&
+        ANTHROPIC_MODELS.includes(model as (typeof ANTHROPIC_MODELS)[number])
+      ) {
+        return model;
+      }
+      return AnthropicModel.ClaudeOpus4_6;
+    }
+    case AIProvider.Ollama: {
+      const model = config.get<string>("ollamaModel");
+      if (model) {
+        return model;
+      }
+      return "";
+    }
     default:
       return "gemini-3-flash-preview";
   }
@@ -127,8 +193,9 @@ export async function getApiKey(
 ): Promise<string | undefined> {
   try {
     let apiKey = await context.secrets.get("audoc.apiKey");
+    const provider = getAIProvider();
 
-    if (!apiKey) {
+    if (!apiKey && provider !== AIProvider.Ollama) {
       apiKey = await vscode.window.showInputBox({
         prompt: t("prompt.apiKey"),
         placeHolder: t("placeholder.apiKeySecure"),
@@ -244,6 +311,11 @@ export async function selectModel(): Promise<void> {
       models = ANTHROPIC_MODELS;
       configKey = ConfigKey.modelConfigKey.AnthropicModel;
       providerName = "Anthropic";
+      break;
+    case AIProvider.Ollama:
+      models = [];
+      configKey = ConfigKey.modelConfigKey.OllamaModel;
+      providerName = "Ollama";
       break;
     default:
       vscode.window.showErrorMessage(t("error.selectProviderFirst"));

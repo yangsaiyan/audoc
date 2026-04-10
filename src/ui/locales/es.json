@@ -26,7 +26,8 @@
     "failedSetApiKey": "Error al establecer la clave API: {0}",
     "failedClearApiKey": "Error al limpiar la clave API: {0}",
     "failedResetApiKey": "Error al restablecer la clave API: {0}",
-    "selectProviderFirst": "Selecciona primero un proveedor de IA"
+    "selectProviderFirst": "Selecciona primero un proveedor de IA",
+    "modelNotSet": "Selecciona primero un modelo"
   },
   "info": {
     "generatingDocumentation": "Generando documentación…"

@@ -3,4 +3,5 @@ export enum AIProvider {
   ChatGPT = "ChatGPT",
   DeepSeek = "DeepSeek",
   Anthropic = "Anthropic",
+  Ollama = "Ollama",
 }
